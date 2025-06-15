@@ -18,10 +18,13 @@ Then include the dependency:
   <dependency>
     <groupId>com.github.leo-eh</groupId>
     <artifactId>jprefixtree</artifactId>
-    <version>0.1.0</version>
+    <version>0.1.1</version>
   </dependency>
 </dependencies>
 ```
+
+## API Documentation
+The latest API documentation can be found [here](https://jitpack.io/com/github/leo-eh/jprefixtree/latest/javadoc/).
 
 ## Example Usage
 In this example, a prefix tree is used to search for books by a word from their title.
