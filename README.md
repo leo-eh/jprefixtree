@@ -82,3 +82,33 @@ public class Main {
     }
 }
 ```
+
+## Implementation
+
+This prefix tree implementation uses nodes, which store a (possibly empty) prefix, along with their
+child nodes, the characters leading to those children, and the associated elements. Nodes are only
+split into smaller nodes (by prefix length) when necessary.
+
+The following example tree illustrates the prefix tree's structure.
+It shows the tree, which results from executing the following commands (order irrelevant):
+```java
+prefixTree.insert("app", element1);
+prefixTree.insert("app", element3);
+prefixTree.insert("apple", element2);
+prefixTree.insert("banana", element4);
+prefixTree.insert("ball", element4);
+prefixTree.insert("bat", element5);
+prefixTree.insert("batman", element1);
+```
+
+![example-tree-01-dark](https://github.com/user-attachments/assets/5d9f2b2d-2245-4b99-b7e8-b27b6c6384c2)
+----------------------------------------------------------------------------------------------------
+When removing elements from the prefix tree, the structure is automatically optimized by removing
+unused Nodes and merging single child nodes with their parent.
+This way the tree always remains compact.
+
+
+
+
+
+
