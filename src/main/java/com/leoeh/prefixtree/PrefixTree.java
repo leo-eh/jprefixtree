@@ -180,7 +180,7 @@ public class PrefixTree<E> {
                 newNode1.setChild(wordSuffix.charAt(0), newNode2);
             } else {
                 newNode1.addElement(element);
-                this.addElementMapping(element, node);
+                this.addElementMapping(element, newNode1);
             }
 
             return;
