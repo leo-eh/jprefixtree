@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.leoeh.prefixtree.PrefixTree.Node;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -77,26 +78,58 @@ class PrefixTreeTest {
 
         @Test
         void testEdgeCase_prefixOfNewWordAlreadyPresent() {
-            tree.insert("Tree", 4);
+            tree.insert("Tree", 2);
 
-            tree.insert("Treehouse", 2);
+            tree.insert("Treehouse", 1);
 
-            assertEquals(1, tree.find("Tree").size());
-            assertTrue(tree.find("Tree").contains(4));
-            assertEquals(1, tree.find("Treehouse").size());
-            assertTrue(tree.find("Treehouse").contains(2));
+            /*
+             * tree(4)
+             *      |---> 2
+             *      |
+             *      |--h--ouse(0)
+             *             |---> 1
+             *
+             */
+            assertEquals(2, tree.getNodeCount());
+
+            final Node<Integer> root = tree.getRoot();
+            assertEquals("tree", root.getPrefix());
+            assertEquals(Set.of(2), root.getElements());
+            assertEquals(1, root.getChildren().size());
+            assertTrue(root.hasChild('h'));
+
+            final Node<Integer> child = root.getChild('h');
+            assertEquals("ouse", child.getPrefix());
+            assertEquals(Set.of(1), child.getElements());
+            assertTrue(child.getChildren().isEmpty());
         }
 
         @Test
         void testEdgeCase_newWordIsPrefixOfPresentWord() {
-            tree.insert("Treehouse", 2);
+            tree.insert("Treehouse", 1);
 
-            tree.insert("Tree", 4);
+            tree.insert("Tree", 2);
 
-            assertEquals(1, tree.find("Tree").size());
-            assertTrue(tree.find("Tree").contains(4));
-            assertEquals(1, tree.find("Treehouse").size());
-            assertTrue(tree.find("Treehouse").contains(2));
+            /*
+             * tree(4)
+             *      |---> 2
+             *      |
+             *      |--h--ouse(0)
+             *             |---> 1
+             *
+             */
+            assertEquals(2, tree.getNodeCount());
+
+            final Node<Integer> root = tree.getRoot();
+            assertEquals("tree", root.getPrefix());
+            assertEquals(Set.of(2), root.getElements());
+            assertEquals(1, root.getChildren().size());
+            assertTrue(root.hasChild('h'));
+
+            final Node<Integer> child = root.getChild('h');
+            assertEquals("ouse", child.getPrefix());
+            assertEquals(Set.of(1), child.getElements());
+            assertTrue(child.getChildren().isEmpty());
         }
     }
 
@@ -178,14 +211,14 @@ class PrefixTreeTest {
         @Test
         void testNormalCase_oneWord() {
             tree.insert("Tree", 1);
-            assertEquals(1, tree.getNodeCount());
 
             tree.remove(1);
+
             assertEquals(0, tree.getNodeCount());
         }
 
         @Test
-        void testNormalCase_multipleWords() {
+        void testNormalCase_noCleanUpRequired() {
             tree.insert("Tree", 1);
             tree.insert("Tree", 2);
             tree.insert("Prefix", 3);
@@ -208,8 +241,6 @@ class PrefixTreeTest {
              *
              */
 
-            assertEquals(5, tree.getNodeCount());
-
             tree.remove(2);
 
             /*
@@ -227,8 +258,32 @@ class PrefixTreeTest {
              *                      |---> 5
              *
              */
-
             assertEquals(5, tree.getNodeCount());
+
+            final Node<Integer> root = tree.getRoot();
+            assertEquals("", root.getPrefix());
+            assertTrue(root.getElements().isEmpty());
+            assertEquals(Set.of('t', 'p'), root.getLabels());
+
+            final Node<Integer> child1 = root.getChild('t');
+            assertEquals("ree", child1.getPrefix());
+            assertEquals(Set.of(1), child1.getElements());
+            assertTrue(child1.getChildren().isEmpty());
+
+            final Node<Integer> child2 = root.getChild('p');
+            assertEquals("", child2.getPrefix());
+            assertTrue(child2.getElements().isEmpty());
+            assertEquals(Set.of('r', 'a'), child2.getLabels());
+
+            final Node<Integer> child21 = child2.getChild('r');
+            assertEquals("efix", child21.getPrefix());
+            assertEquals(Set.of(3), child21.getElements());
+            assertTrue(child21.getChildren().isEmpty());
+
+            final Node<Integer> child22 = child2.getChild('a');
+            assertEquals("tricia", child22.getPrefix());
+            assertEquals(Set.of(5), child22.getElements());
+            assertTrue(child22.getChildren().isEmpty());
 
             tree.remove(3);
 
@@ -256,6 +311,91 @@ class PrefixTreeTest {
             assertEquals(1, tree.getNodeCount());
 
             tree.remove(5);
+
+            assertEquals(0, tree.getNodeCount());
+        }
+
+        @Test
+        void testEdgeCase_nodeHasNoElementsAfterRemoval() {
+            tree.insert("tree", 1);
+            tree.insert("prefix", 3);
+            tree.insert("patricia", 5);
+
+            /*
+             * (0)
+             *  |--t--ree(3)
+             *  |         |---> 1
+             *  |
+             *  |
+             *  |--p--(0)
+             *         |--r--efix(4)
+             *         |          |---> 3
+             *         |
+             *         |
+             *         |--a--tricia(6)
+             *                      |---> 5
+             *
+             */
+
+            tree.remove(3);
+
+            /*
+             * (0)
+             *  |--t--ree(3)
+             *  |         |---> 1
+             *  |
+             *  |
+             *  |--p--atricia(7)
+             *                |---> 5
+             *
+             */
+            assertEquals(3, tree.getNodeCount());
+
+            final Node<Integer> root = tree.getRoot();
+            assertEquals("", root.getPrefix());
+            assertTrue(root.getElements().isEmpty());
+            assertEquals(Set.of('t', 'p'), root.getLabels());
+
+            final Node<Integer> child1 = root.getChild('t');
+            assertEquals("ree", child1.getPrefix());
+            assertEquals(Set.of(1), child1.getElements());
+            assertTrue(child1.getChildren().isEmpty());
+
+            final Node<Integer> child2 = root.getChild('p');
+            assertEquals("atricia", child2.getPrefix());
+            assertEquals(Set.of(5), child2.getElements());
+            assertTrue(child2.getChildren().isEmpty());
+        }
+
+        @Test
+        void testEdgeCase_wordAndItsPrefix() {
+            tree.insert("Hello", 1);
+            tree.insert("Hell", 2);
+
+            /*
+             * hell(4)
+             *      |---> 2
+             *      |
+             *      |--o--(0)
+             *             |---> 1
+             *
+             */
+
+            tree.remove(2);
+
+            /*
+             * hello(5)
+             *       |---> 1
+             *
+             */
+            assertEquals(1, tree.getNodeCount());
+
+            final Node<Integer> root = tree.getRoot();
+            assertEquals("hello", root.getPrefix());
+            assertEquals(Set.of(1), root.getElements());
+            assertTrue(root.getChildren().isEmpty());
+
+            tree.remove(1);
 
             assertEquals(0, tree.getNodeCount());
         }

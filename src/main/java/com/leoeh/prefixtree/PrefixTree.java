@@ -281,6 +281,11 @@ public class PrefixTree<E> {
         this.elements.computeIfAbsent(element, k -> new HashSet<>()).add(node);
     }
 
+    // visible for testing
+    Node<E> getRoot() {
+        return this.root;
+    }
+
     /**
      * Represents a node of a prefix tree. A node has a prefix, outgoing edges to child nodes
      * labeled with characters and outgoing edges to its referenced elements. Additionally, it
