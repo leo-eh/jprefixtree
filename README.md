@@ -1,4 +1,6 @@
 # JPrefixTree
+[![](https://jitpack.io/v/leo-eh/jprefixtree.svg)](https://jitpack.io/#leo-eh/jprefixtree)
+
 A prefix tree implementation for Java.
 
 ## Installation
