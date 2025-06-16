@@ -18,7 +18,7 @@ Then include the dependency:
   <dependency>
     <groupId>com.github.leo-eh</groupId>
     <artifactId>jprefixtree</artifactId>
-    <version>0.1.1</version>
+    <version>0.1.2</version>
   </dependency>
 </dependencies>
 ```
