@@ -1,5 +1,6 @@
 # JPrefixTree
-[![](https://jitpack.io/v/leo-eh/jprefixtree.svg)](https://jitpack.io/#leo-eh/jprefixtree)
+[![JitPack](https://jitpack.io/v/leo-eh/jprefixtree.svg)](https://jitpack.io/#leo-eh/jprefixtree)
+[![Build](https://github.com/leo-eh/jprefixtree/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/leo-eh/jprefixtree/actions/workflows/build.yml)
 
 A prefix tree implementation for Java.
 
