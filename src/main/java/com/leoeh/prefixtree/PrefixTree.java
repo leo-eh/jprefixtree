@@ -45,7 +45,7 @@ public class PrefixTree<E> {
      * @return the number of nodes present in this prefix tree
      */
     public int getNodeCount() {
-        final Iterator<Node<E>> nodeIterator = new NodeIterator();
+        final Iterator<Node<E>> nodeIterator = new NodeIterator(this.root);
         int nodeCount = 0;
 
         while (nodeIterator.hasNext()) {
@@ -112,6 +112,29 @@ public class PrefixTree<E> {
         }
 
         return this.findRecursively(this.root, word.toLowerCase());
+    }
+
+    /**
+     * Searches for all words, which begin with the specified prefix, and returns a set containing
+     * all elements associated with those words.
+     *
+     * @param prefix the prefix of the words whose associated elements are to be found
+     * @return the set of elements associated with words beginning with the specified prefix
+     * @throws IllegalArgumentException if the specified prefix is null or empty
+     */
+    public Set<E> findByPrefix(final String prefix) {
+        if (prefix == null) {
+            throw new IllegalArgumentException("Prefix cannot be null");
+        }
+        if (prefix.isEmpty()) {
+            throw new IllegalArgumentException("Prefix cannot be empty");
+        }
+
+        if (this.root == null) {
+            return new HashSet<>();
+        }
+
+        return this.findRecursivelyByPrefix(this.root, prefix.toLowerCase());
     }
 
     /**
@@ -223,6 +246,37 @@ public class PrefixTree<E> {
         }
 
         return new HashSet<>();
+    }
+
+    private Set<E> findRecursivelyByPrefix(final Node<E> node, final String prefix) {
+        final String nodePrefix = node.getPrefix();
+        final String greatestCommonPrefix = this.getGreatestCommonPrefix(nodePrefix, prefix);
+
+        if (greatestCommonPrefix.length() == prefix.length()) {
+            return this.getSubtreeElements(node);
+        }
+
+        if (greatestCommonPrefix.length() == nodePrefix.length()) {
+            final String remainingPrefix = prefix.substring(greatestCommonPrefix.length());
+
+            if (node.hasChild(remainingPrefix.charAt(0))) {
+                return this.findRecursivelyByPrefix(node.getChild(remainingPrefix.charAt(0)),
+                        remainingPrefix.substring(1));
+            }
+        }
+
+        return new HashSet<>();
+    }
+
+    private Set<E> getSubtreeElements(final Node<E> subtreeRoot) {
+        final Set<E> subtreeElements = new HashSet<>();
+        final Iterator<Node<E>> subtreeNodeIterator = new NodeIterator(subtreeRoot);
+
+        while (subtreeNodeIterator.hasNext()) {
+            subtreeElements.addAll(subtreeNodeIterator.next().getElements());
+        }
+
+        return subtreeElements;
     }
 
     private void cleanUpRecursively(final Node<E> node) {
@@ -497,7 +551,7 @@ public class PrefixTree<E> {
 
         private final Deque<Node<E>> deque;
 
-        public NodeIterator() {
+        public NodeIterator(final Node<E> root) {
             this.deque = new ArrayDeque<>();
             if (root != null) {
                 this.deque.push(root);
