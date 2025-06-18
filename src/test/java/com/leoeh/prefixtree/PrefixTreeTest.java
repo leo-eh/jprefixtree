@@ -162,6 +162,53 @@ class PrefixTreeTest {
     }
 
     @Nested
+    @DisplayName("findByPrefix")
+    class FindByPrefix {
+
+        @Test
+        void testNormalCase() {
+            tree.insert("tree", 1);
+            tree.insert("treehouse", 2);
+
+            assertEquals(Set.of(1, 2), tree.findByPrefix("tree"));
+        }
+
+        @Test
+        void testNormalCase_longPrefix() {
+            tree.insert("trie", 0);
+            tree.insert("tree", 1);
+            tree.insert("treehouse", 2);
+            tree.insert("treehousewindow", 3);
+
+            assertEquals(Set.of(2, 3), tree.findByPrefix("treeh"));
+        }
+
+        @Test
+        void testEdgeCase_treeIsEmpty() {
+            assertTrue(tree.findByPrefix("test").isEmpty());
+        }
+
+        @Test
+        void testEdgeCase_noMatchingWordsPresent() {
+            tree.insert("tree", 1);
+            tree.insert("treehouse", 2);
+            tree.insert("prefix", 3);
+
+            assertTrue(tree.findByPrefix("a").isEmpty());
+        }
+
+        @Test
+        void testErrorCase_prefixIsNull() {
+            assertThrows(IllegalArgumentException.class, () -> tree.findByPrefix(null));
+        }
+
+        @Test
+        void testErrorCase_prefixIsEmpty() {
+            assertThrows(IllegalArgumentException.class, () -> tree.findByPrefix(""));
+        }
+    }
+
+    @Nested
     @DisplayName("remove")
     class Remove {
 
