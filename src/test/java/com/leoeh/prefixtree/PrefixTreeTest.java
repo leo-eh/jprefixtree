@@ -451,6 +451,34 @@ class PrefixTreeTest {
     }
 
     @Nested
+    @DisplayName("clear")
+    class Clear {
+
+        @Test
+        void testNormalCase() {
+            tree.insert("Test", 1);
+            tree.insert("Prefix", 3);
+            tree.insert("Tree", 19);
+            tree.insert("Patricia", 8);
+
+            tree.clear();
+
+            assertEquals(tree, new PrefixTree<Integer>());
+            assertEquals(0, tree.getNodeCount());
+            assertEquals(0, tree.getSize());
+        }
+
+        @Test
+        void testEdgeCase_treeIsEmpty() {
+            tree.clear();
+
+            assertEquals(tree, new PrefixTree<Integer>());
+            assertEquals(0, tree.getNodeCount());
+            assertEquals(0, tree.getSize());
+        }
+    }
+
+    @Nested
     @DisplayName("getSize")
     class GetSize {
 
