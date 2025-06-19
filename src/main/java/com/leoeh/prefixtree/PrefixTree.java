@@ -36,7 +36,7 @@ public class PrefixTree<V> {
      *
      * @return the number of values stored in this prefix tree
      */
-    public int getSize() {
+    public int size() {
         return this.reverseNodeLookupMap.keySet().size();
     }
 
@@ -45,7 +45,7 @@ public class PrefixTree<V> {
      *
      * @return the number of nodes present in this prefix tree
      */
-    public int getNodeCount() {
+    public int nodeCount() {
         final Iterator<Node<V>> nodeIterator = new NodeIterator(this.root);
         int nodeCount = 0;
 

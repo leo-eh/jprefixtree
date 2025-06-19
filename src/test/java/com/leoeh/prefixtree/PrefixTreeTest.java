@@ -92,7 +92,7 @@ class PrefixTreeTest {
              *             |---> 1
              *
              */
-            assertEquals(2, tree.getNodeCount());
+            assertEquals(2, tree.nodeCount());
 
             final Node<Integer> root = tree.getRoot();
             assertEquals("tree", root.getPrefix());
@@ -120,7 +120,7 @@ class PrefixTreeTest {
              *             |---> 1
              *
              */
-            assertEquals(2, tree.getNodeCount());
+            assertEquals(2, tree.nodeCount());
 
             final Node<Integer> root = tree.getRoot();
             assertEquals("tree", root.getPrefix());
@@ -263,7 +263,7 @@ class PrefixTreeTest {
 
             tree.remove(1);
 
-            assertEquals(0, tree.getNodeCount());
+            assertEquals(0, tree.nodeCount());
         }
 
         @Test
@@ -307,7 +307,7 @@ class PrefixTreeTest {
              *                      |---> 5
              *
              */
-            assertEquals(5, tree.getNodeCount());
+            assertEquals(5, tree.nodeCount());
 
             final Node<Integer> root = tree.getRoot();
             assertEquals("", root.getPrefix());
@@ -347,7 +347,7 @@ class PrefixTreeTest {
              *
              */
 
-            assertEquals(3, tree.getNodeCount());
+            assertEquals(3, tree.nodeCount());
 
             tree.remove(1);
 
@@ -357,11 +357,11 @@ class PrefixTreeTest {
              *
              */
 
-            assertEquals(1, tree.getNodeCount());
+            assertEquals(1, tree.nodeCount());
 
             tree.remove(5);
 
-            assertEquals(0, tree.getNodeCount());
+            assertEquals(0, tree.nodeCount());
         }
 
         @Test
@@ -398,7 +398,7 @@ class PrefixTreeTest {
              *                |---> 5
              *
              */
-            assertEquals(3, tree.getNodeCount());
+            assertEquals(3, tree.nodeCount());
 
             final Node<Integer> root = tree.getRoot();
             assertEquals("", root.getPrefix());
@@ -437,7 +437,7 @@ class PrefixTreeTest {
              *       |---> 1
              *
              */
-            assertEquals(1, tree.getNodeCount());
+            assertEquals(1, tree.nodeCount());
 
             final Node<Integer> root = tree.getRoot();
             assertEquals("hello", root.getPrefix());
@@ -446,7 +446,7 @@ class PrefixTreeTest {
 
             tree.remove(1);
 
-            assertEquals(0, tree.getNodeCount());
+            assertEquals(0, tree.nodeCount());
         }
     }
 
@@ -464,8 +464,8 @@ class PrefixTreeTest {
             tree.clear();
 
             assertEquals(tree, new PrefixTree<Integer>());
-            assertEquals(0, tree.getNodeCount());
-            assertEquals(0, tree.getSize());
+            assertEquals(0, tree.nodeCount());
+            assertEquals(0, tree.size());
         }
 
         @Test
@@ -473,18 +473,18 @@ class PrefixTreeTest {
             tree.clear();
 
             assertEquals(tree, new PrefixTree<Integer>());
-            assertEquals(0, tree.getNodeCount());
-            assertEquals(0, tree.getSize());
+            assertEquals(0, tree.nodeCount());
+            assertEquals(0, tree.size());
         }
     }
 
     @Nested
-    @DisplayName("getSize")
-    class GetSize {
+    @DisplayName("size")
+    class Size {
 
         @Test
         void testNormalCase_treeIsEmpty() {
-            assertEquals(0, tree.getSize());
+            assertEquals(0, tree.size());
         }
 
         @Test
@@ -494,7 +494,7 @@ class PrefixTreeTest {
             tree.insert("Tree", 19);
             tree.insert("Patricia", 8);
 
-            assertEquals(4, tree.getSize());
+            assertEquals(4, tree.size());
         }
 
         @Test
@@ -504,7 +504,7 @@ class PrefixTreeTest {
             tree.insert("Prefix", 4);
             tree.insert("Prefix", 1);
 
-            assertEquals(2, tree.getSize());
+            assertEquals(2, tree.size());
         }
 
         @Test
@@ -517,7 +517,7 @@ class PrefixTreeTest {
             tree.remove(3);
             tree.remove(8);
 
-            assertEquals(2, tree.getSize());
+            assertEquals(2, tree.size());
         }
     }
 
