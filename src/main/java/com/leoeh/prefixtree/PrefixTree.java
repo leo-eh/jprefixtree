@@ -13,31 +13,31 @@ import java.util.Set;
 /**
  * Provides an implementation for a prefix tree, that is a more space efficient variant of a trie.
  * <p>
- * Allows insertion of elements along with words, which can later be used to retrieve the elements.
- * Enables efficient element search by word and allows users to remove elements, while optimizing
- * the tree structure by removing unused words and merging or deleting obsolete nodes.
+ * Allows insertion of word-value-pairs and enables efficient retrieval of values by word or prefix.
+ * Additionally, values can be removed, while keeping the tree structure compact and optimized by
+ * removing unused words and merging or deleting obsolete nodes.
  *
- * @param <E> the type of the elements referenced by this prefix tree
+ * @param <V> the type of the values stored by this prefix tree
  */
-public class PrefixTree<E> {
+public class PrefixTree<V> {
 
-    private Map<E, Set<Node<E>>> elements;
-    private Node<E> root;
+    private Map<V, Set<Node<V>>> reverseNodeLookupMap;
+    private Node<V> root;
 
     /**
      * Creates a new prefix tree.
      */
     public PrefixTree() {
-        this.elements = new HashMap<>();
+        this.reverseNodeLookupMap = new HashMap<>();
     }
 
     /**
-     * Returns the number of elements stored in this prefix tree.
+     * Returns the number of values stored in this prefix tree.
      *
-     * @return the number of elements stored in this prefix tree
+     * @return the number of values stored in this prefix tree
      */
-    public int getSize() {
-        return this.elements.keySet().size();
+    public int size() {
+        return this.reverseNodeLookupMap.keySet().size();
     }
 
     /**
@@ -45,8 +45,8 @@ public class PrefixTree<E> {
      *
      * @return the number of nodes present in this prefix tree
      */
-    public int getNodeCount() {
-        final Iterator<Node<E>> nodeIterator = new NodeIterator(this.root);
+    public int nodeCount() {
+        final Iterator<Node<V>> nodeIterator = new NodeIterator(this.root);
         int nodeCount = 0;
 
         while (nodeIterator.hasNext()) {
@@ -58,26 +58,26 @@ public class PrefixTree<E> {
     }
 
     /**
-     * Inserts the specified word into the prefix tree and associates the given element with the
-     * word, if it is not already associated with that word (optional operation). The element can
-     * later be retrieved by searching for the word.
+     * Inserts the specified word into the prefix tree and associates the given value with the word,
+     * if it is not already associated with that word (optional operation). The value can later be
+     * retrieved by searching for the word.
      * <p>
      * Requires the word to be at least one character long.
      *
-     * @param word    the word used to find the element
-     * @param element the element to be associated with the word
+     * @param word  the word used to find the value
+     * @param value the value to be associated with the word
      * @throws IllegalArgumentException if the specified word is null or empty or if the provided
-     *                                  element is null
+     *                                  value is null
      */
-    public void insert(final String word, final E element) {
+    public void insert(final String word, final V value) {
         if (word == null) {
             throw new IllegalArgumentException("Word cannot be null");
         }
         if (word.isEmpty()) {
             throw new IllegalArgumentException("Word cannot be empty");
         }
-        if (element == null) {
-            throw new IllegalArgumentException("Element cannot be null");
+        if (value == null) {
+            throw new IllegalArgumentException("Value cannot be null");
         }
 
         final String lowerCaseWord = word.toLowerCase();
@@ -85,22 +85,22 @@ public class PrefixTree<E> {
         if (this.root == null) {
             this.root = new Node<>();
             this.root.setPrefix(lowerCaseWord);
-            this.root.addElement(element);
-            this.addElementMapping(element, this.root);
+            this.root.addValue(value);
+            this.addReverseNodeMapping(value, this.root);
         } else {
-            this.insertRecursively(this.root, lowerCaseWord, element);
+            this.insertRecursively(this.root, lowerCaseWord, value);
         }
     }
 
     /**
-     * Searches for the specified word in this prefix tree and returns a set containing all elements
+     * Searches for the specified word in this prefix tree and returns a set containing all values
      * associated with that word.
      *
-     * @param word the word whose associated elements are to be found
-     * @return the set of elements associated with the specified word
+     * @param word the word whose associated values are to be found
+     * @return the set of values associated with the specified word
      * @throws IllegalArgumentException if the specified word is null or empty
      */
-    public Set<E> find(final String word) {
+    public Set<V> find(final String word) {
         if (word == null) {
             throw new IllegalArgumentException("Word cannot be null");
         }
@@ -117,13 +117,13 @@ public class PrefixTree<E> {
 
     /**
      * Searches for all words, which begin with the specified prefix, and returns a set containing
-     * all elements associated with those words.
+     * all values associated with those words.
      *
-     * @param prefix the prefix of the words whose associated elements are to be found
-     * @return the set of elements associated with words beginning with the specified prefix
+     * @param prefix the prefix of the words whose associated values are to be found
+     * @return the set of values associated with words beginning with the specified prefix
      * @throws IllegalArgumentException if the specified prefix is null or empty
      */
-    public Set<E> findByPrefix(final String prefix) {
+    public Set<V> findByPrefix(final String prefix) {
         if (prefix == null) {
             throw new IllegalArgumentException("Prefix cannot be null");
         }
@@ -139,45 +139,45 @@ public class PrefixTree<E> {
     }
 
     /**
-     * Removes the provided element from this prefix tree, if present (optional operation). Also
-     * removes all words which point exclusively to this element and optimizes the tree structure by
+     * Removes the specified value from this prefix tree, if present (optional operation). Also
+     * removes all words which point exclusively to this value and optimizes the tree structure by
      * merging nodes and removing unnecessary nodes if possible.
      *
-     * @param element the element to be removed
-     * @throws IllegalArgumentException if the provided element is null
+     * @param value the value to be removed
+     * @throws IllegalArgumentException if the provided value is null
      */
-    public void remove(final E element) {
-        if (element == null) {
+    public void remove(final V value) {
+        if (value == null) {
             throw new IllegalArgumentException();
         }
 
-        if (!this.elements.containsKey(element)) {
+        if (!this.reverseNodeLookupMap.containsKey(value)) {
             return;
         }
 
-        final Set<Node<E>> nodesReferencingElement = this.elements.get(element);
-        for (final Node<E> node : nodesReferencingElement) {
-            node.removeElement(element);
+        final Set<Node<V>> nodesReferencingValue = this.reverseNodeLookupMap.get(value);
+        for (final Node<V> node : nodesReferencingValue) {
+            node.removeValue(value);
             this.cleanUpRecursively(node);
         }
 
-        this.elements.remove(element);
+        this.reverseNodeLookupMap.remove(value);
     }
 
     /**
      * Removes all entries from this prefix tree. Ensures that this tree is empty.
      */
     public void clear() {
-        this.elements = new HashMap<>();
+        this.reverseNodeLookupMap = new HashMap<>();
         this.root = null;
     }
 
-    private void insertRecursively(final Node<E> node, final String word, final E element) {
+    private void insertRecursively(final Node<V> node, final String word, final V value) {
         final String nodePrefix = node.getPrefix();
 
         if (nodePrefix.equals(word)) {
-            node.addElement(element);
-            this.addElementMapping(element, node);
+            node.addValue(value);
+            this.addReverseNodeMapping(value, node);
             return;
         }
 
@@ -186,7 +186,7 @@ public class PrefixTree<E> {
         final String wordSuffix = word.substring(greatestCommonPrefix.length());
 
         if (greatestCommonPrefix.length() < nodePrefix.length()) {
-            final Node<E> newNode1 = new Node<>();
+            final Node<V> newNode1 = new Node<>();
 
             newNode1.setPrefix(greatestCommonPrefix);
             node.setPrefix(nodeSuffix.substring(1));
@@ -194,7 +194,7 @@ public class PrefixTree<E> {
             if (node == this.root) {
                 this.root = newNode1;
             } else {
-                final Node<E> parent = node.getParent();
+                final Node<V> parent = node.getParent();
                 final char parentEdgeLabel = node.getParentEdgeLabel();
 
                 parent.setChild(parentEdgeLabel, newNode1);
@@ -203,16 +203,16 @@ public class PrefixTree<E> {
             newNode1.setChild(nodeSuffix.charAt(0), node);
 
             if (!wordSuffix.isEmpty()) {
-                final Node<E> newNode2 = new Node<>();
+                final Node<V> newNode2 = new Node<>();
 
                 newNode2.setPrefix(wordSuffix.substring(1));
-                newNode2.addElement(element);
-                this.addElementMapping(element, newNode2);
+                newNode2.addValue(value);
+                this.addReverseNodeMapping(value, newNode2);
 
                 newNode1.setChild(wordSuffix.charAt(0), newNode2);
             } else {
-                newNode1.addElement(element);
-                this.addElementMapping(element, newNode1);
+                newNode1.addValue(value);
+                this.addReverseNodeMapping(value, newNode1);
             }
 
             return;
@@ -221,24 +221,24 @@ public class PrefixTree<E> {
         if (node.hasChild(wordSuffix.charAt(0))) {
             this.insertRecursively(node.getChild(wordSuffix.charAt(0)),
                     wordSuffix.substring(1),
-                    element);
+                    value);
             return;
         }
 
-        final Node<E> newNode2 = new Node<>();
+        final Node<V> newNode2 = new Node<>();
 
         newNode2.setPrefix(wordSuffix.substring(1));
-        newNode2.addElement(element);
-        this.addElementMapping(element, newNode2);
+        newNode2.addValue(value);
+        this.addReverseNodeMapping(value, newNode2);
 
         node.setChild(wordSuffix.charAt(0), newNode2);
     }
 
-    private Set<E> findRecursively(final Node<E> node, final String word) {
+    private Set<V> findRecursively(final Node<V> node, final String word) {
         final String nodePrefix = node.getPrefix();
 
         if (nodePrefix.equals(word)) {
-            return new HashSet<>(node.getElements());
+            return new HashSet<>(node.getValues());
         }
 
         final String greatestCommonPrefix = this.getGreatestCommonPrefix(nodePrefix, word);
@@ -257,12 +257,12 @@ public class PrefixTree<E> {
         return new HashSet<>();
     }
 
-    private Set<E> findRecursivelyByPrefix(final Node<E> node, final String prefix) {
+    private Set<V> findRecursivelyByPrefix(final Node<V> node, final String prefix) {
         final String nodePrefix = node.getPrefix();
         final String greatestCommonPrefix = this.getGreatestCommonPrefix(nodePrefix, prefix);
 
         if (greatestCommonPrefix.length() == prefix.length()) {
-            return this.getSubtreeElements(node);
+            return this.getSubtreeValues(node);
         }
 
         if (greatestCommonPrefix.length() == nodePrefix.length()) {
@@ -277,34 +277,34 @@ public class PrefixTree<E> {
         return new HashSet<>();
     }
 
-    private Set<E> getSubtreeElements(final Node<E> subtreeRoot) {
-        final Set<E> subtreeElements = new HashSet<>();
-        final Iterator<Node<E>> subtreeNodeIterator = new NodeIterator(subtreeRoot);
+    private Set<V> getSubtreeValues(final Node<V> subtreeRoot) {
+        final Set<V> subtreeValues = new HashSet<>();
+        final Iterator<Node<V>> subtreeNodeIterator = new NodeIterator(subtreeRoot);
 
         while (subtreeNodeIterator.hasNext()) {
-            subtreeElements.addAll(subtreeNodeIterator.next().getElements());
+            subtreeValues.addAll(subtreeNodeIterator.next().getValues());
         }
 
-        return subtreeElements;
+        return subtreeValues;
     }
 
-    private void cleanUpRecursively(final Node<E> node) {
+    private void cleanUpRecursively(final Node<V> node) {
         final int numberOfChildNodes = node.getLabels().size();
-        final int numberOfReferencedElements = node.getElements().size();
+        final int numberOfReferencedValues = node.getValues().size();
 
-        if (numberOfChildNodes > 1 || numberOfReferencedElements > 0) {
+        if (numberOfChildNodes > 1 || numberOfReferencedValues > 0) {
             return;
         }
 
         if (numberOfChildNodes == 1) {
             final char label = node.getLabels().iterator().next();
-            final Node<E> child = node.getChild(label);
+            final Node<V> child = node.getChild(label);
             child.setPrefix(node.getPrefix() + label + child.getPrefix());
 
             if (node == this.root) {
                 this.root = child;
             } else {
-                final Node<E> parent = node.getParent();
+                final Node<V> parent = node.getParent();
                 final char parentEdgeLabel = node.getParentEdgeLabel();
 
                 parent.removeChild(parentEdgeLabel);
@@ -319,7 +319,7 @@ public class PrefixTree<E> {
             return;
         }
 
-        final Node<E> parent = node.getParent();
+        final Node<V> parent = node.getParent();
         final char parentEdgeLabel = node.getParentEdgeLabel();
         parent.removeChild(parentEdgeLabel);
 
@@ -340,12 +340,12 @@ public class PrefixTree<E> {
         return word1.substring(0, commonPrefixLength);
     }
 
-    private void addElementMapping(final E element, final Node<E> node) {
-        this.elements.computeIfAbsent(element, k -> new HashSet<>()).add(node);
+    private void addReverseNodeMapping(final V value, final Node<V> node) {
+        this.reverseNodeLookupMap.computeIfAbsent(value, k -> new HashSet<>()).add(node);
     }
 
     // visible for testing
-    Node<E> getRoot() {
+    Node<V> getRoot() {
         return this.root;
     }
 
@@ -379,17 +379,17 @@ public class PrefixTree<E> {
 
     /**
      * Represents a node of a prefix tree. A node has a prefix, outgoing edges to child nodes
-     * labeled with characters and outgoing edges to its referenced elements. Additionally, it
-     * stores its parent node if present as well as the label on the edge to the parent node.
+     * labeled with characters and outgoing edges to its stored values. Additionally, it stores its
+     * parent node if present as well as the label on the edge to the parent node.
      *
-     * @param <E> the type of the elements referenced by this prefix tree node
+     * @param <V> the type of the values stored in this prefix tree node
      */
-    static class Node<E> {
+    static class Node<V> {
 
-        private final Map<Character, Node<E>> children;
-        private final Set<E> elements;
+        private final Map<Character, Node<V>> children;
+        private final Set<V> values;
         private String prefix;
-        private Node<E> parent;
+        private Node<V> parent;
         private Character parentEdgeLabel;
 
         /**
@@ -398,7 +398,7 @@ public class PrefixTree<E> {
         public Node() {
             this.prefix = "";
             this.children = new HashMap<>();
-            this.elements = new HashSet<>();
+            this.values = new HashSet<>();
         }
 
         /**
@@ -443,7 +443,7 @@ public class PrefixTree<E> {
          * @return this node's parent node
          * @throws NoSuchElementException if this node does not have a parent node
          */
-        public Node<E> getParent() {
+        public Node<V> getParent() {
             if (!this.hasParent()) {
                 throw new NoSuchElementException("No parent present");
             }
@@ -466,7 +466,7 @@ public class PrefixTree<E> {
             return this.parentEdgeLabel;
         }
 
-        private void setParent(final Character label, final Node<E> node) {
+        private void setParent(final Character label, final Node<V> node) {
             this.parent = node;
             this.parentEdgeLabel = label;
         }
@@ -488,7 +488,7 @@ public class PrefixTree<E> {
          * @param node  the child node
          * @throws IllegalArgumentException if the specified node is null
          */
-        public void setChild(final char label, final Node<E> node) {
+        public void setChild(final char label, final Node<V> node) {
             if (node == null) {
                 throw new IllegalArgumentException("Child node cannot be null");
             }
@@ -515,7 +515,7 @@ public class PrefixTree<E> {
          * @param label the label for which the child is to be returned
          * @throws NoSuchElementException if no child is present for the specified label
          */
-        public Node<E> getChild(final char label) {
+        public Node<V> getChild(final char label) {
             if (!this.hasChild(label)) {
                 throw new NoSuchElementException("No child present for the specified label");
             }
@@ -528,7 +528,7 @@ public class PrefixTree<E> {
          *
          * @return a set containing this node's child nodes
          */
-        public Set<Node<E>> getChildren() {
+        public Set<Node<V>> getChildren() {
             return new HashSet<>(this.children.values());
         }
 
@@ -545,47 +545,48 @@ public class PrefixTree<E> {
         }
 
         /**
-         * Adds the provided element to this node's referenced elements if not already present
+         * Adds the provided value to the set of values stored in this node if not already present
          * (optional operation).
          *
-         * @param element the element to be added
-         * @throws IllegalArgumentException if the provided element is null
+         * @param value the value to be added
+         * @throws IllegalArgumentException if the provided value is null
          */
-        public void addElement(final E element) {
-            if (element == null) {
-                throw new IllegalArgumentException("Cannot add null element");
+        public void addValue(final V value) {
+            if (value == null) {
+                throw new IllegalArgumentException("Cannot add null value");
             }
 
-            this.elements.add(element);
+            this.values.add(value);
         }
 
         /**
-         * Returns a set containing all elements referenced by this node.
+         * Returns a set containing all values stored in this node.
          *
-         * @return the set of this node's elements
+         * @return the set of values stored in this node
          */
-        public Set<E> getElements() {
-            return this.elements;
+        public Set<V> getValues() {
+            return this.values;
         }
 
         /**
-         * Removes the provided element from this node's referenced elements if present (optional
-         * operation).
+         * Removes the provided value from the set of values stored in this node if present
+         * (optional operation).
          *
-         * @param element the element to be removed
-         * @throws IllegalArgumentException if the provided element is null
+         * @param value the value to be removed
+         * @throws IllegalArgumentException if the provided value is null
          */
-        public void removeElement(final E element) {
-            if (element == null) {
-                throw new IllegalArgumentException("Cannot remove null element");
+        public void removeValue(final V value) {
+            if (value == null) {
+                throw new IllegalArgumentException("Cannot remove null value");
             }
 
-            this.elements.remove(element);
+            this.values.remove(value);
         }
 
         /**
          * Compares the specified object with this node for equality. Returns true if the object is
-         * also a prefix tree node and has the same prefix, elements and children as this node.
+         * also a prefix tree node and has the same prefix, stored values and children as this
+         * node.
          *
          * @param o the object to be compared with this node for equality
          * @return true if the specified object is equal to this node, false otherwise
@@ -599,27 +600,27 @@ public class PrefixTree<E> {
                 return false;
             }
             return Objects.equals(this.getChildren(), other.getChildren())
-                    && Objects.equals(this.getElements(), other.getElements())
+                    && Objects.equals(this.getValues(), other.getValues())
                     && Objects.equals(this.getPrefix(), other.getPrefix());
         }
 
         /**
          * Returns the hash code value for this node. The hash code value is defined by this node's
-         * prefix, elements and children.
+         * prefix, stored values and children.
          *
          * @return the hash code value for this node
          */
         @Override
         public int hashCode() {
-            return Objects.hash(this.getChildren(), this.getElements(), this.getPrefix());
+            return Objects.hash(this.getChildren(), this.getValues(), this.getPrefix());
         }
     }
 
-    private class NodeIterator implements Iterator<Node<E>> {
+    private class NodeIterator implements Iterator<Node<V>> {
 
-        private final Deque<Node<E>> deque;
+        private final Deque<Node<V>> deque;
 
-        public NodeIterator(final Node<E> root) {
+        public NodeIterator(final Node<V> root) {
             this.deque = new ArrayDeque<>();
             if (root != null) {
                 this.deque.push(root);
@@ -632,14 +633,14 @@ public class PrefixTree<E> {
         }
 
         @Override
-        public Node<E> next() {
+        public Node<V> next() {
             if (!this.hasNext()) {
                 throw new NoSuchElementException("Next element is not present");
             }
 
-            final Node<E> currentNode = this.deque.pop();
+            final Node<V> currentNode = this.deque.pop();
 
-            for (final Node<E> child : currentNode.getChildren()) {
+            for (final Node<V> child : currentNode.getChildren()) {
                 this.deque.push(child);
             }
 
