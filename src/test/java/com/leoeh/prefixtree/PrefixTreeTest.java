@@ -1,10 +1,12 @@
 package com.leoeh.prefixtree;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.leoeh.prefixtree.PrefixTree.Node;
+import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -488,6 +490,69 @@ class PrefixTreeTest {
             tree.remove(8);
 
             assertEquals(2, tree.getSize());
+        }
+    }
+
+    @Nested
+    @DisplayName("equals and hashCode")
+    class EqualsAndHashCode {
+
+        @Test
+        void testNormalCase() {
+            final PrefixTree<Integer> otherTree = new PrefixTree<>();
+            List.of(tree, otherTree).forEach(prefixTree -> {
+                prefixTree.insert("Tree", 1);
+                prefixTree.insert("Treehouse", 2);
+                prefixTree.insert("Treehouse", 3);
+                prefixTree.insert("Trie", 7);
+                prefixTree.insert("House", 1);
+            });
+
+            assertEquals(tree, otherTree);
+            assertEquals(otherTree, tree);
+
+            assertEquals(tree.hashCode(), otherTree.hashCode());
+        }
+
+        @Test
+        void testEdgeCase_bothTreesEmpty() {
+            final PrefixTree<Integer> otherTree = new PrefixTree<>();
+
+            assertEquals(tree, otherTree);
+            assertEquals(otherTree, tree);
+
+            assertEquals(tree.hashCode(), otherTree.hashCode());
+        }
+
+        @Test
+        void testEdgeCase_oneTreeEmpty() {
+            final PrefixTree<Integer> otherTree = new PrefixTree<>();
+            tree.insert("Test", 3);
+
+            assertNotEquals(tree, otherTree);
+            assertNotEquals(otherTree, tree);
+        }
+
+        @Test
+        void testEdgeCase_afterDeletions() {
+            final PrefixTree<Integer> otherTree = new PrefixTree<>();
+            List.of(tree, otherTree).forEach(prefixTree -> {
+                prefixTree.insert("Tree", 1);
+                prefixTree.insert("Treehouse", 2);
+                prefixTree.insert("Treehouse", 3);
+                prefixTree.insert("Trie", 7);
+                prefixTree.insert("House", 1);
+            });
+
+            otherTree.insert("Test", 5);
+            otherTree.insert("Hash", 6);
+            otherTree.remove(5);
+            otherTree.remove(6);
+
+            assertEquals(tree, otherTree);
+            assertEquals(otherTree, tree);
+
+            assertEquals(tree.hashCode(), otherTree.hashCode());
         }
     }
 }
