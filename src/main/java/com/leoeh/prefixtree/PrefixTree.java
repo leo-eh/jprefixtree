@@ -21,7 +21,7 @@ import java.util.Set;
  */
 public class PrefixTree<E> {
 
-    private final Map<E, Set<Node<E>>> elements;
+    private Map<E, Set<Node<E>>> elements;
     private Node<E> root;
 
     /**
@@ -162,6 +162,14 @@ public class PrefixTree<E> {
         }
 
         this.elements.remove(element);
+    }
+
+    /**
+     * Removes all entries from this prefix tree. Ensures that this tree is empty.
+     */
+    public void clear() {
+        this.elements = new HashMap<>();
+        this.root = null;
     }
 
     private void insertRecursively(final Node<E> node, final String word, final E element) {
