@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -341,6 +342,34 @@ public class PrefixTree<E> {
     }
 
     /**
+     * Compares the specified object with this prefix tree for equality. Returns true if the object
+     * is also a prefix tree and has a root, which is equal to this prefix tree's root.
+     *
+     * @param o the object to be compared with this prefix tree for equality
+     * @return true if the specified object is equal to this prefix tree, false otherwise
+     */
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof final PrefixTree<?> other)) {
+            return false;
+        }
+        return Objects.equals(this.getRoot(), other.getRoot());
+    }
+
+    /**
+     * Returns the hash code value for this prefix tree, that is the hash code value of its root.
+     *
+     * @return the hash code value fo this prefix tree
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(this.getRoot());
+    }
+
+    /**
      * Represents a node of a prefix tree. A node has a prefix, outgoing edges to child nodes
      * labeled with characters and outgoing edges to its referenced elements. Additionally, it
      * stores its parent node if present as well as the label on the edge to the parent node.
@@ -544,6 +573,37 @@ public class PrefixTree<E> {
             }
 
             this.elements.remove(element);
+        }
+
+        /**
+         * Compares the specified object with this node for equality. Returns true if the object is
+         * also a prefix tree node and has the same prefix, elements and children as this node.
+         *
+         * @param o the object to be compared with this node for equality
+         * @return true if the specified object is equal to this node, false otherwise
+         */
+        @Override
+        public boolean equals(final Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (!(o instanceof final Node<?> other)) {
+                return false;
+            }
+            return Objects.equals(this.getChildren(), other.getChildren())
+                    && Objects.equals(this.getElements(), other.getElements())
+                    && Objects.equals(this.getPrefix(), other.getPrefix());
+        }
+
+        /**
+         * Returns the hash code value for this node. The hash code value is defined by this node's
+         * prefix, elements and children.
+         *
+         * @return the hash code value for this node
+         */
+        @Override
+        public int hashCode() {
+            return Objects.hash(this.getChildren(), this.getElements(), this.getPrefix());
         }
     }
 
