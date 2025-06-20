@@ -1,6 +1,7 @@
 package com.leoeh.prefixtree;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -518,6 +519,49 @@ class PrefixTreeTest {
             tree.remove(8);
 
             assertEquals(2, tree.size());
+        }
+    }
+
+    @Nested
+    @DisplayName("isEmpty")
+    class IsEmpty {
+
+        @Test
+        void testNormalCase_newlyInstantiatedTree() {
+            assertTrue(tree.isEmpty());
+        }
+
+        @Test
+        void testNormalCase_treeContainsValue() {
+            tree.insert("Test", 1);
+
+            assertFalse(tree.isEmpty());
+        }
+
+        @Test
+        void testNormalCase_clearedTree() {
+            tree.insert("Test", 1);
+            tree.insert("Prefix", 3);
+            tree.insert("Tree", 4);
+            tree.insert("Patricia", 4);
+
+            tree.clear();
+
+            assertTrue(tree.isEmpty());
+        }
+
+        @Test
+        void testNormalCase_treeWithAllValuesRemoved() {
+            tree.insert("Test", 1);
+            tree.insert("Prefix", 3);
+            tree.insert("Tree", 4);
+            tree.insert("Patricia", 4);
+
+            tree.remove(1);
+            tree.remove(3);
+            tree.remove(4);
+
+            assertTrue(tree.isEmpty());
         }
     }
 
