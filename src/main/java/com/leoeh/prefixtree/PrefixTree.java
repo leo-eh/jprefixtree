@@ -41,6 +41,15 @@ public class PrefixTree<V> {
     }
 
     /**
+     * Indicates whether this prefix tree is empty.
+     *
+     * @return true if this prefix tree stores no word-value-pairs, false otherwise
+     */
+    public boolean isEmpty() {
+        return this.root == null;
+    }
+
+    /**
      * Returns the number of nodes present in this prefix tree.
      *
      * @return the number of nodes present in this prefix tree
